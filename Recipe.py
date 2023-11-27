@@ -8,6 +8,6 @@ class Recipe:
         self.price = price
 
     def toString(self):
-        print(self.name & ": " & str(self.price))
+        return self.name + ": " + str(self.price) + "€"
 
     

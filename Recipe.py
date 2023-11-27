@@ -7,7 +7,7 @@ class Recipe:
         self.name = name
         self.price = price
 
-    def toString(self):
+    def to_string(self):
         return self.name + ": " + str(self.price) + "€"
 
     

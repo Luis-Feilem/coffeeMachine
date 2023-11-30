@@ -25,13 +25,12 @@ class CoffeeMachine:
     def start_screen(self):
         sg.theme('Purple')
         layout = [ [sg.Text("Welcome to the coffe vending machine at Metaforum, floor 6")],
-                  [sg.Text("Here are the available options for your coffe: ")]
+                  [sg.Text("This is our menu today: ")]
         ]
-        for r in self.catalogue.values():
-            layout.append([sg.Text(r.to_string())])
+        for k,v in self.catalogue.items():
+            layout.append([sg.Button(k),sg.Text(v.get_price())])
             
-        layout.append([sg.Text("Enter the option you would like to have (case sensitive)"), sg.InputText()])
-        layout.append([sg.Button("Order"), sg.Button("Exit")])
+        layout.append([sg.Button("Exit")])
 
         startWindow = sg.Window("MetaCoffee", layout)
         
@@ -41,8 +40,8 @@ class CoffeeMachine:
             event, values = startWindow.read()
             if event == "Exit" or event == sg.WIN_CLOSED:
                 out_state = self.exit_state
-            if event == "Order":
-                out_state = self.select_order(values[0])
+            else:
+                out_state = self.select_order(event)
         startWindow.close()
         return out_state
 
@@ -55,7 +54,6 @@ class CoffeeMachine:
             if self.order.is_customizable():
                 return self.customize_order()
             else:
-                print("not customizable")
                 return self.confirm_state
         else:
             sg.popup("Your selection was not valid, please enter the name of one of our offers.")
@@ -65,13 +63,14 @@ class CoffeeMachine:
         # TODO
         layout = []
         for co in self.order.recipe.custom_options:
-            layout.append([sg.Text("Select how much " + co[0] + " you would like ("+ str(co[1])+ ")"), sg.InputText(co[2])])
+            layout.append([sg.Text("Select how much " + co[0] + " you would like ?"), sg.Slider(co[1],co[2], resolution=1, tick_interval=1, orientation="horizontal")])
         layout.append([sg.Button("Confirm"), sg.Button("Cancel")])
         
         customWindow = sg.Window("Customize values", layout,modal=True)
         out_state = self.wait_state
         while out_state == self.wait_state:
             event, values = customWindow.read()
+            print(str(event) + " : " + str(values))
             if event == "Cancel" or event == sg.WIN_CLOSED:
                 break
             if event == "Confirm":

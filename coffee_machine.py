@@ -28,7 +28,7 @@ class CoffeeMachine:
                   [sg.Text("This is our menu today: ")]
         ]
         for k,v in self.catalogue.items():
-            layout.append([sg.Button(k),sg.Text(v.get_price())])
+            layout.append([sg.Button(k),sg.Text(v.price)])
             
         layout.append([sg.Button("Exit")])
 
@@ -45,8 +45,8 @@ class CoffeeMachine:
         startWindow.close()
         return out_state
 
-    def read_recipe(r):
-        return r.to_string()
+    def read_order(self):
+        return self.order.to_string()
 
     def select_order(self, selection):
         if selection in self.catalogue.keys():
@@ -62,24 +62,27 @@ class CoffeeMachine:
     def customize_order(self):
         # TODO
         layout = []
-        for co in self.order.recipe.custom_options:
-            layout.append([sg.Text("Select how much " + co[0] + " you would like ?"), sg.Slider(co[1],co[2], resolution=1, tick_interval=1, orientation="horizontal")])
+        for k,v in self.order.recipe.custom_options.items():
+            layout.append([sg.Text("Select how much " + k + " you would like ?"), sg.Slider(self.order.recipe.custom_options[k][0],self.order.recipe.custom_options[k][1], 
+                                                                                            key=k, resolution=1, tick_interval=1, orientation="horizontal")])
         layout.append([sg.Button("Confirm"), sg.Button("Cancel")])
         
         customWindow = sg.Window("Customize values", layout,modal=True)
         out_state = self.wait_state
         while out_state == self.wait_state:
             event, values = customWindow.read()
-            print(str(event) + " : " + str(values))
             if event == "Cancel" or event == sg.WIN_CLOSED:
                 break
             if event == "Confirm":
+                for k in self.order.recipe.custom_options.keys():
+                    self.order.customize_option(k, values[k])
                 out_state = self.confirm_state
         customWindow.close()
+        del values, customWindow
         return out_state
 
     def confirm_and_pay_order(self):
-        layout = [[sg.T("This is your order: " + self.order.to_string() + ". Please, proceed to payment now.")],
+        layout = [[sg.T("You ordered: " + self.read_order() + ". Please, proceed to payment now.")],
                   [sg.Button("Pay"), sg.Button("Cancel")]
         ]
         
@@ -106,7 +109,7 @@ class CoffeeMachine:
         
         return self.deliver_state
         
-    def deliver_coffee(self):
+    def deliver_order(self):
         # TODO?
         sg.popup("Here is your coffee. Thank you for using our services.")
         return self.init_state
@@ -123,7 +126,7 @@ class CoffeeMachine:
                 case self.prepare_state:
                     self.state = self.prepare_order()
                 case self.deliver_state:
-                    self.state = self.deliver_coffee()
+                    self.state = self.deliver_order()
 
 
 

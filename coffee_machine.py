@@ -1,3 +1,4 @@
+import time 
 from recipe import Recipe
 from order import Order
 import PySimpleGUI as sg 
@@ -78,7 +79,6 @@ class CoffeeMachine:
                     self.order.customize_option(k, values[k])
                 out_state = self.confirm_state
         customWindow.close()
-        del values, customWindow
         return out_state
 
     def confirm_and_pay_order(self):
@@ -106,7 +106,19 @@ class CoffeeMachine:
     def prepare_order(self):
         # TODO
         # Look at order custom options and prepare accordingly
-        
+        prepare_time = 5000
+        layout = [[sg.ProgressBar(max_value=prepare_time,orientation="horizontal", bar_color="green", key="pb",size_px=(500,25  ))]]
+        prepareWindow = sg.Window("Preparing order...", layout, modal=True, disable_close=True)
+        t = 0
+        progressBar = prepareWindow["pb"]
+        progress_unit = 100
+        print(t)
+        while t < prepare_time:
+            event, values = prepareWindow.read(timeout=progress_unit)
+            t += progress_unit
+            progressBar.update(t)
+        prepareWindow.close()
+        print(t)
         return self.deliver_state
         
     def deliver_order(self):
